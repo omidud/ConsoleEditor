@@ -181,12 +181,13 @@ namespace ConsoleEditor
             }//end while
         }
 
-        private void WriteSentence(string sentence)
+        private void WriteSentence(string sentence) 
         {
             Console.CursorTop = currLineY;
             Console.CursorVisible = false;
             Console.CursorLeft = 0 + margin;
             Console.Write(sentence);
+            //Console.WriteLine(currLineY.ToString().PadLeft(paddingSize, ' ') + ": " + sentence);
             Console.CursorLeft = X + margin;
             Console.CursorVisible = true;
         }
