@@ -215,9 +215,9 @@ namespace ConsoleEditor
             Console.CursorTop = currLineY;
         }
 
-        private void DoBackSpace()
+        private void DoBackSpace() //Backspace fixed
         {
-            if (X > margin)
+            if (X > 0)
             {
                 if (X < buffer[currLineY].Length)
                 {
