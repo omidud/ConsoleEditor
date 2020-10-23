@@ -11,41 +11,68 @@ namespace ConsoleEditor
         private int currLineY = 0;
         private List<string> buffer = new List<string>();
         private int X = 0;
-        private string currFilename = "";
+        private string currFilename;
         private int paddingSize = 0;
         private int margin = 0;
 
 
-        public Editor()
+        public Editor() //no filename provided,  currFilename = "Untitled";
         {
+            currFilename = "Untitled";
             buffer.Add("");
-            Refresh();
-            X = 0;
-            Console.CursorLeft = X + margin;
-            currLineY = 0;
-            Console.CursorTop = currLineY;
-        }
+            Init();
+        }             
 
         public Editor(string filename)
         {
             currFilename = filename;
-            X = 0;
+
+            if(File.Exists(currFilename)) //if exist , open for edit
+            {
+                OpenFile(currFilename);
+            }
+            else
+            {
+                //blank filename but with filename name
+                buffer.Add("");
+            }
+                
+            Init();
+        }
+
+
+        private void OpenFile(string filename)
+        {
             string[] arrString = File.ReadAllLines(filename);
 
             foreach (string str in arrString)
             {
-                buffer.Add(str.Replace(Environment.NewLine, ""));
+                buffer.Add(str.Replace(Environment.NewLine, "")); //important remove the newlines
+            }
+        }
+
+        private void SaveFile(string filename)
+        {
+            string contents = "";
+
+            foreach (string strLine in buffer)
+            {
+                contents += strLine + Environment.NewLine; ////important add the newlines
             }
 
+            File.WriteAllText(filename, contents);
+
+        }
 
 
+        private void Init()
+        {
             Refresh();
             X = 0;
             Console.CursorLeft = X + margin;
             currLineY = 0;
             Console.CursorTop = currLineY;
         }
-
         public void Run()
         {
             bool running = true;
@@ -71,7 +98,7 @@ namespace ConsoleEditor
                         //paste
                     }
                 }
-                else if (keyInfo.Modifiers == 0)
+                else if (keyInfo.Modifiers == 0 || keyInfo.Modifiers == ConsoleModifiers.Shift)
                 {
                     switch (keyInfo.Key)
                     {
@@ -339,7 +366,7 @@ namespace ConsoleEditor
             string msgbox = @"
                 +-------------------------------------------------+
                 |                                                 |
-                |    Do you want to save changes to Untitled?     |
+                |       Do you want to save the changes?          |                
                 |                                                 |
                 |  +----------+     +----------+    +----------+  |
                 |  |   [y]es  |     |   [N]o   |    | [C]ancel |  |
@@ -350,11 +377,8 @@ namespace ConsoleEditor
 
             Console.Write(msgbox);
 
-            int tempX = Console.CursorLeft;
+            int tempX = Console.CursorLeft - 1;
             int tempY = Console.CursorTop;
-
-
-
 
             bool continueAsking = true;
 
@@ -365,11 +389,19 @@ namespace ConsoleEditor
                 Console.Write(" ");
                 if (yesNoCancel == 'y' || yesNoCancel == 'Y')
                 {
-                    continueAsking = false;
+                    
                     FlushKeyboard();
                     Console.WriteLine();
                     Console.Write("                Save as [" + currFilename + "]: ");
                     string filename = Console.ReadLine();
+
+                    if(filename == "")                    
+                        SaveFile(currFilename);                                       
+                    else
+                        SaveFile(filename);                                               
+                       
+                    
+                    continueAsking = false;
                     retorna = true;
                 }
                 else if (yesNoCancel == 'n' || yesNoCancel == 'N')
@@ -397,6 +429,9 @@ namespace ConsoleEditor
             while (Console.In.Peek() != -1)
                 Console.In.Read();
         }
+
+
+        
 
     }//end class
 }//end namespace

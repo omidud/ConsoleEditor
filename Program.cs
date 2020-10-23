@@ -6,7 +6,17 @@ namespace ConsoleEditor
     {
         static void Main(string[] args)
         {
-            Editor editor = new Editor("demo.txt");
+            Editor editor;
+
+            if (args.Length > 0)
+            {
+                string filename = args[0];
+                editor = new Editor(filename);               
+            }
+            else
+            {
+                editor = new Editor();                
+            }
 
             editor.Run();
         }
