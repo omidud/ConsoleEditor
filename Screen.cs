@@ -30,6 +30,9 @@ namespace ConsoleEditor
 
         public static void Refresh(ref List<string> buffer, ref int paddingSize, ref int margin)
         {
+            int width = Util.getMaxStringLenght(ref buffer);
+            Console.WindowWidth = width + margin + 10;
+
             int totalLineNumber = buffer.Count;
             paddingSize = totalLineNumber.ToString().Length;
             margin = paddingSize + 2;

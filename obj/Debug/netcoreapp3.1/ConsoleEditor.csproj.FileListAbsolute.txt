@@ -10,3 +10,4 @@ E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEd
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.dll
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.pdb
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.genruntimeconfig.cache
+E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.csprojAssemblyReference.cache

@@ -39,11 +39,12 @@ namespace ConsoleEditor
                 buffer.Add("");
             }
             
-            Screen.Init(ref buffer,ref paddingSize, ref margin, ref X,ref currLineY);
+            Screen.Init(ref buffer,ref paddingSize, ref margin, ref X,ref currLineY);                        
         }
                
         public void Run()
         {
+            Console.TreatControlCAsInput = true;
             bool running = true;
 
             while (running)
@@ -53,18 +54,29 @@ namespace ConsoleEditor
 
                 if (keyInfo.Modifiers == ConsoleModifiers.Control)
                 {
-                    if (keyInfo.Key == ConsoleKey.X)
+
+                    switch(keyInfo.Key)
                     {
-                        //cut
+                        case ConsoleKey.Home:
+                            KeyInput.CtrlHome(ref X, ref currLineY, ref margin);
+                            break;
+                        case ConsoleKey.End:
+                            KeyInput.CtrlEnd(ref buffer, ref X, ref currLineY, ref margin);
+                            break;
+                        case ConsoleKey.X:
+                            //cut
+                            break;
+                        case ConsoleKey.C:
+                            //copy
+                            break;
+                        case ConsoleKey.V:
+                            //paste
+                            break;
+
+                        default:
+                            break;
                     }
-                    else if (keyInfo.Key == ConsoleKey.C)
-                    {
-                        //copy
-                    }
-                    else if (keyInfo.Key == ConsoleKey.V)
-                    {
-                        //paste
-                    }
+                   
                 }
                 else if (keyInfo.Modifiers == 0 || keyInfo.Modifiers == ConsoleModifiers.Shift)
                 {
@@ -87,18 +99,7 @@ namespace ConsoleEditor
                             break;
                         case ConsoleKey.End:
                             KeyInput.End(ref buffer, ref X, ref currLineY, ref margin);                            
-                            break;
-                        case ConsoleKey.Escape:
-                            if(ConfirmBox.Show(ref buffer, currFilename))
-                            {
-                                running = false;
-                            }
-                            else
-                            {
-                                Screen.Refresh(ref buffer, ref paddingSize, ref margin);
-                                running = true;
-                            }                           
-                            break;
+                            break;                       
                         case ConsoleKey.Delete:
                             KeyInput.Delete(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
                             break;
@@ -108,24 +109,21 @@ namespace ConsoleEditor
                         case ConsoleKey.Enter:                            
                             KeyInput.Enter(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
                             break;
+                        case ConsoleKey.PageDown:
+                            KeyInput.PageDown(ref buffer, ref X, ref currLineY, ref margin);
+                            break;
+                        case ConsoleKey.PageUp:
+                            KeyInput.PageUp(ref buffer, ref X, ref currLineY, ref margin);
+                            break;
+                        case ConsoleKey.Escape:
+                            KeyInput.Escape(ref buffer, ref currFilename, ref running, ref margin, ref paddingSize);                           
+                            break;
                         default:
-                            if (buffer.Count == 0)
-                                buffer.Add("");
-
-                            if (buffer[currLineY] == null)
-                                break;
-
-                            if (X <= buffer[currLineY].Length)
-                            {
-                                buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
-                                X++;                                
-                                Screen.WriteSentence(buffer[currLineY], ref currLineY, ref margin, ref X);
-                            }
-
+                            KeyInput.Default(ref buffer, ref X, ref currLineY, ref margin, ref keyInfo);                           
                             break;
                     }//end switch         
                 }
-                //Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
+                Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
                 Console.CursorVisible = true;
             }//end while
 

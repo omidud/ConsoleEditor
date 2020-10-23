@@ -192,5 +192,128 @@ namespace ConsoleEditor
                 }
             }
         }
+
+        public static void Escape(ref List<string> buffer, ref string currFilename,ref bool running, ref int margin, ref int paddingSize)
+        {            
+            if (ConfirmBox.Show(ref buffer, currFilename))
+            {
+                running = false;
+            }
+            else
+            {
+                Screen.Refresh(ref buffer, ref paddingSize, ref margin);
+                running = true;
+            }
+        }
+
+        public static void Default(ref List<string> buffer, ref int X, ref int currLineY,ref int margin, ref ConsoleKeyInfo keyInfo)
+        {
+            if (buffer.Count == 0)
+                buffer.Add("");
+
+            if (buffer[currLineY] == null)
+                return;
+
+            if (X <= buffer[currLineY].Length)
+            {
+                buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
+                X++;
+                Screen.WriteSentence(buffer[currLineY], ref currLineY, ref margin, ref X);
+            }
+        }
+
+        public static void PageDown(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        {
+            int pageHeight = Console.WindowHeight;
+           // int lastPageHeight = buffer.Count % Console.WindowHeight;
+
+
+            if (currLineY < buffer.Count)
+            {
+                if (currLineY + pageHeight < buffer.Count)
+                {
+                    if (X > buffer[currLineY + pageHeight].Length)
+                    {
+                        X = buffer[currLineY + pageHeight].Length;
+                        Console.CursorLeft = X + margin;
+                    }
+                    currLineY = currLineY + pageHeight;
+                }
+                else
+                {
+                    currLineY = buffer.Count - 1;
+
+                    if (X > buffer[currLineY].Length)
+                    {
+                        X = buffer[currLineY].Length;
+                        Console.CursorLeft = X + margin;
+                    }
+
+
+                    //if (currLineY + lastPageHeight <= buffer.Count)
+                    //{
+                    //    if (X > buffer[currLineY + lastPageHeight - 1].Length)
+                    //    {
+                    //        X = buffer[currLineY + lastPageHeight - 1].Length;
+                    //        Console.CursorLeft = X + margin;
+                    //    }
+                    //    currLineY = currLineY + lastPageHeight - 1;
+                    //}
+                }
+
+                Console.CursorTop = currLineY;
+            }
+        }
+
+        public static void PageUp(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        {
+            int pageHeight = Console.WindowHeight;
+           // int lastPageHeight = buffer.Count % Console.WindowHeight;
+
+            if (currLineY > 0)
+            {
+                if (currLineY - pageHeight < 0)
+                {
+                    if (X > buffer[0].Length)
+                    {
+                        X = buffer[0].Length;
+                        Console.CursorLeft = X + margin;
+                    }
+                    currLineY = 0;
+                }
+                else
+                {
+                    if (X > buffer[currLineY - pageHeight].Length)
+                    {
+                        X = buffer[currLineY - pageHeight].Length;
+                        Console.CursorLeft = X + margin;
+                    }
+                    currLineY = currLineY - pageHeight;
+                }
+
+
+                Console.CursorTop = currLineY;
+            }
+        }
+
+        
+        public static void CtrlHome(ref int X, ref int currLineY, ref int margin)        
+        {
+            currLineY = 0;
+            X = 0;
+            Console.CursorLeft = X + margin;
+            Console.CursorTop = currLineY;
+        }
+
+        public static void CtrlEnd(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        {
+            currLineY = buffer.Count - 1;
+            X = buffer[currLineY].Length;
+            Console.CursorLeft = X + margin;
+            Console.CursorTop = currLineY;
+        }
+
+
+
     }//end class
 }//end namespace
