@@ -4,7 +4,6 @@ E:\Programacion\C#\C# Repository\ConsoleEditor\bin\Debug\netcoreapp3.1\ConsoleEd
 E:\Programacion\C#\C# Repository\ConsoleEditor\bin\Debug\netcoreapp3.1\ConsoleEditor.runtimeconfig.dev.json
 E:\Programacion\C#\C# Repository\ConsoleEditor\bin\Debug\netcoreapp3.1\ConsoleEditor.dll
 E:\Programacion\C#\C# Repository\ConsoleEditor\bin\Debug\netcoreapp3.1\ConsoleEditor.pdb
-E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.csprojAssemblyReference.cache
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.AssemblyInfoInputs.cache
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.AssemblyInfo.cs
 E:\Programacion\C#\C# Repository\ConsoleEditor\obj\Debug\netcoreapp3.1\ConsoleEditor.csproj.CoreCompileInputs.cache

@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleEditor": {
       "commandName": "Project",
-      "commandLineArgs": "hola.txt"
+      "commandLineArgs": "demo.txt"
     }
   }
 }

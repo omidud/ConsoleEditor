@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ConsoleEditor
 {
-    //Editor 2.2
+    //Editor 2.4
     public class Editor
     {
         private int currLineY = 0;
@@ -15,34 +15,13 @@ namespace ConsoleEditor
         private int paddingSize = 0;
         private int margin = 0;
 
-
         public Editor() //no filename provided,  currFilename = "Untitled";
         {
+            //new file Untitled
             currFilename = "Untitled";
-            buffer.Add("");
-            Init();
+            buffer.Add("");            
+            Screen.Init(ref buffer, ref paddingSize, ref margin, ref X, ref currLineY);
         }
-
-
-        private string Center(string str, int width)
-        {
-            string outStr = "";
-
-            if (width <= str.Length)
-                return str;
-
-            int length = str.Length;
-            int padSize = (width / 2) - (length / 2);
-          
-            outStr = "".PadLeft(padSize, ' ') + str + "".PadRight(padSize, ' ');
-
-            if (outStr.Length < width)            
-                outStr = outStr + " ";               
-            
-
-            return outStr;
-        }
-
 
         public Editor(string filename)
         {
@@ -50,62 +29,19 @@ namespace ConsoleEditor
 
             if(File.Exists(currFilename)) //if exist , open for edit
             {
-                OpenFile(currFilename);
+                FileIO.OpenFile(currFilename, ref buffer);
+                if (buffer.Count == 0)
+                    buffer.Add("");
             }
             else
             {
-                //blank filename but with filename name
+                //new file but with filename
                 buffer.Add("");
             }
-                
-            Init();
+            
+            Screen.Init(ref buffer,ref paddingSize, ref margin, ref X,ref currLineY);
         }
-
-
-        private void OpenFile(string filename)
-        {
-            string[] arrString = File.ReadAllLines(filename);
-
-            foreach (string str in arrString)
-            {
-                buffer.Add(str.Replace(Environment.NewLine, "")); //important remove the newlines
-            }
-        }
-
-        private void SaveFile(string filename)
-        {
-            string contents = "";
-            int count = 0;
-
-            foreach (string strLine in buffer)
-            {
-                count++;
-                if (count < buffer.Count)
-                    contents += strLine + Environment.NewLine; ////important add the newlines
-                else
-                {
-                    if(strLine == "")
-                        contents += strLine + Environment.NewLine;
-                    else
-                        contents += strLine; //no in the last line
-                }
-                    
-            }
-                       
-
-            File.WriteAllText(filename, contents);
-
-        }
-
-
-        private void Init()
-        {
-            Refresh();
-            X = 0;
-            Console.CursorLeft = X + margin;
-            currLineY = 0;
-            Console.CursorTop = currLineY;
-        }
+               
         public void Run()
         {
             bool running = true;
@@ -114,7 +50,6 @@ namespace ConsoleEditor
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                 Console.CursorVisible = false;
-
 
                 if (keyInfo.Modifiers == ConsoleModifiers.Control)
                 {
@@ -136,116 +71,42 @@ namespace ConsoleEditor
                     switch (keyInfo.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            if (currLineY > 0)
-                            {
-                                if (X > buffer[currLineY - 1].Length)
-                                {
-                                    X = buffer[currLineY - 1].Length;
-                                    Console.CursorLeft = X + margin;
-                                }
-                                currLineY--;
-                                Console.CursorTop = currLineY;
-                            }
+                            KeyInput.UpArrow(ref buffer, ref X, ref currLineY, ref margin);
                             break;
                         case ConsoleKey.DownArrow:
-                            if (currLineY < buffer.Count)
-                            {
-                                if (currLineY + 1 < buffer.Count)
-                                {
-                                    if (X > buffer[currLineY + 1].Length)
-                                    {
-                                        X = buffer[currLineY + 1].Length;
-                                        Console.CursorLeft = X + margin;
-                                    }
-                                    currLineY++;
-                                }
-                                Console.CursorTop = currLineY;
-                            }
+                            KeyInput.DownArrow(ref buffer, ref X, ref currLineY, ref margin);                            
                             break;
-                        case ConsoleKey.RightArrow:  //->
-                            if (X < buffer[currLineY].Length)
-                            {
-                                X++;
-                                Console.CursorLeft = X + margin;
-                            }
+                        case ConsoleKey.RightArrow:  
+                            KeyInput.RightArrow(ref buffer, ref X, ref currLineY, ref margin);                            
                             break;
-                        case ConsoleKey.LeftArrow: //<-
-                            if (X > 0)
-                            {
-                                X--;
-                                Console.CursorLeft = X + margin;
-                            }
+                        case ConsoleKey.LeftArrow:
+                            KeyInput.LeftArrow(ref X, ref margin);
                             break;
-                        case ConsoleKey.Home: //
-                            X = 0;
-                            Console.CursorLeft = X + margin;
+                        case ConsoleKey.Home:
+                            KeyInput.Home(ref X, ref margin);                            
                             break;
                         case ConsoleKey.End:
-                            X = buffer[currLineY].Length;
-                            Console.CursorLeft = X + margin; //put the cursor on the end of the string
+                            KeyInput.End(ref buffer, ref X, ref currLineY, ref margin);                            
                             break;
                         case ConsoleKey.Escape:
-                            if (AskWhenExit())
+                            if(ConfirmBox.Show(ref buffer, currFilename))
                             {
                                 running = false;
                             }
                             else
                             {
-                                Refresh();
+                                Screen.Refresh(ref buffer, ref paddingSize, ref margin);
                                 running = true;
-                            }
+                            }                           
                             break;
                         case ConsoleKey.Delete:
-                            if (buffer.Count == 0)
-                                break;
-
-                            if (currLineY == buffer.Count)
-                                break;
-
-                            if (currLineY == buffer.Count - 1)
-                            {
-
-                                if (X < buffer[currLineY].Length)
-                                {
-                                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                                    WriteSentence(buffer[currLineY] + " ");
-                                }
-                                break;
-                            }
-
-                            if (currLineY >= 0)
-                            {
-                                if (buffer[currLineY] == "") //cursor is in a empty line and user press DEL
-                                {
-                                    DoBackSpace();
-                                    currLineY++;
-                                    X = 0;
-                                    Console.CursorTop = currLineY;
-                                    Console.CursorLeft = X + margin;
-                                    break;
-                                }
-
-                                if (X == buffer[currLineY].Length) //cursor is in the end of the line and user press DEL
-                                {
-                                    currLineY++;
-                                    X = 0;
-                                    DoBackSpace();
-                                    break;
-                                }
-
-                                if (X < buffer[currLineY].Length)
-                                {
-                                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                                    WriteSentence(buffer[currLineY] + " ");
-                                }
-                            }
-
+                            KeyInput.Delete(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
                             break;
-                        case ConsoleKey.Backspace:
-                            DoBackSpace();
+                        case ConsoleKey.Backspace:                                                       
+                            KeyInput.BackSpace(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
                             break;
-                        case ConsoleKey.Enter:
-                            DoEnter();
+                        case ConsoleKey.Enter:                            
+                            KeyInput.Enter(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
                             break;
                         default:
                             if (buffer.Count == 0)
@@ -257,229 +118,19 @@ namespace ConsoleEditor
                             if (X <= buffer[currLineY].Length)
                             {
                                 buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
-                                X++;
-                                WriteSentence(buffer[currLineY]);
+                                X++;                                
+                                Screen.WriteSentence(buffer[currLineY], ref currLineY, ref margin, ref X);
                             }
 
                             break;
                     }//end switch         
                 }
-
-
-                Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
+                //Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
                 Console.CursorVisible = true;
             }//end while
 
             Console.Clear();
         }
-
-        private void WriteSentence(string sentence)
-        {
-            Console.CursorTop = currLineY;
-            Console.CursorVisible = false;
-            Console.CursorLeft = 0 + margin;
-            Console.Write(sentence);
-            //Console.WriteLine(currLineY.ToString().PadLeft(paddingSize, ' ') + ": " + sentence);
-            Console.CursorLeft = X + margin;
-            Console.CursorVisible = true;
-        }
-
-        private void DoEnter()
-        {
-            // no puede existir newlines en los buffers
-            // en el save se colocara newline a cada buffer item
-            // buffer[currLineY] = buffer[currLineY] + Environment.NewLine; //esto se colocara en el save
-            // y en el load se eliminaran los newline de cada buffer item
-
-            if (currLineY == buffer.Count)
-            {
-                buffer.Add("");
-            }
-
-            string enterData = buffer[currLineY];
-            enterData = enterData.Substring(X, enterData.Length - X);
-            buffer[currLineY] = buffer[currLineY].Substring(0, X);
-            buffer.Insert(currLineY + 1, enterData);
-            Refresh();
-            X = 0;
-            Console.CursorLeft = X + margin;
-            currLineY++;
-            Console.CursorTop = currLineY;
-        }
-
-        private void DoBackSpace() //Backspace fixed
-        {
-            if (X > 0)
-            {
-                if (X < buffer[currLineY].Length)
-                {
-                    string leftPart = buffer[currLineY].Substring(0, X - 1);
-                    string rightPart = buffer[currLineY].Substring(X, buffer[currLineY].Length - X);
-                    buffer[currLineY] = leftPart + rightPart;
-                }
-                else
-                {
-                    string backLine = buffer[currLineY].Substring(0, buffer[currLineY].Length - 1);
-                    buffer[currLineY] = backLine;
-                }
-                X--;
-                WriteSentence(buffer[currLineY] + " ");
-            }
-            else if (X == 0)
-            {
-
-                if (buffer.Count == 0)
-                    return;
-
-                if (currLineY == buffer.Count)
-                {
-                    currLineY--;
-                    return;
-                }
-
-
-                if (buffer[currLineY] == null)
-                    return;
-
-                string temp = buffer[currLineY];
-                buffer.RemoveAt(currLineY);
-
-                if (currLineY > 0)
-                {
-                    X = buffer[currLineY - 1].Length;
-                    buffer[currLineY - 1] = buffer[currLineY - 1] + temp;
-                    Refresh();
-                    Console.CursorLeft = X + margin;
-                    currLineY--;
-                    Console.CursorTop = currLineY;
-                }
-            }
-        }
-
-        private void Refresh()
-        {
-            int totalLineNumber = buffer.Count;
-            paddingSize = totalLineNumber.ToString().Length;
-            margin = paddingSize + 2;
-
-            Console.CursorVisible = false;
-            Console.Clear();
-            int lineNumber = 0;
-            foreach (string texto in buffer)
-            {
-                //Console.WriteLine(texto); //aqui lo imprimimos pero no esta en los buffers
-                lineNumber++;
-                Console.WriteLine(lineNumber.ToString().PadLeft(paddingSize, ' ') + ": " + texto);
-            }
-            Console.CursorVisible = true;
-        }
-
-        private int getMaxStringLenght()
-        {
-            int size = 0;
-            foreach (string str in buffer)
-            {
-                if (str.Length > size)
-                {
-                    size = str.Length;
-                }
-            }
-
-            return size;
-        }
-
-        private bool AskWhenExit()
-        {
-            bool retorna = false;
-            //Console.CursorVisible = true;
-            Console.CursorLeft = 0;
-            Console.CursorTop = buffer.Count + 2;
-
-            //int size = getMaxStringLenght() + margin;
-            //if (size < 80) size = 80;
-            //Console.WriteLine("_".PadLeft(size, '_'));
-
-            string disPlayname = "";
-
-            if(File.Exists(currFilename))
-            {
-                FileInfo fInfo = new FileInfo(currFilename);
-                disPlayname = fInfo.Name;
-            }
-            else
-            {
-                disPlayname = currFilename;
-            }
-            // disPlayname = disPlayname.PadLeft(47);
-
-            // Console.ForegroundColor = ConsoleColor.Black;
-            // Console.BackgroundColor = ConsoleColor.White;
-            //ref. https://en.wikipedia.org/wiki/Box-drawing_character#Unix,_CP/M,_BBS
-
-            string msgbox = @"
-                ╔═════════════════════════════════════════════════╗
-                ║                                                 ║
-                ║       Do you want to save the changes?          ║
-                ║" + Center(disPlayname, 49) + @"║
-                ║                                                 ║
-                ║  ╔══════════╗     ╔══════════╗    ╔══════════╗  ║
-                ║  ║  [y]es   ║     ║   [N]o   ║    ║ [C]ancel ║  ║
-                ║  ╚══════════╝     ╚══════════╝    ╚══════════╝  ║
-                ║                                                 ║
-                ╚═════════════════════════════════════════════════╝";
-
-            Console.Clear();
-            Console.Write(msgbox);
-
-           // int tempX = Console.CursorLeft - 1;
-           // int tempY = Console.CursorTop;
-
-            bool continueAsking = true;
-
-            while (continueAsking)
-            {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                //Console.SetCursorPosition(tempX, tempY);
-                //Console.Write(" ");
-                if (keyInfo.Key == ConsoleKey.Y)
-                {                    
-                    //FlushKeyboard();
-                    Console.WriteLine();
-                    Console.Write("                Save as [" + currFilename + "]: ");
-                    string filename = Console.ReadLine();
-
-                    if(filename == "")                    
-                        SaveFile(currFilename);                                       
-                    else
-                        SaveFile(filename);                                               
-                       
-                    
-                    continueAsking = false;
-                    retorna = true;
-                }
-                else if (keyInfo.Key == ConsoleKey.N)
-                {
-                    continueAsking = false;
-                    retorna = true;
-                }
-                else if (keyInfo.Key == ConsoleKey.C)
-                {
-                    continueAsking = false;
-                    retorna = false;
-                }
-                else
-                    continueAsking = true;
-            }
-            return retorna;
-
-        }
-
-        private void FlushKeyboard()
-        {
-            while (Console.In.Peek() != -1)
-                Console.In.Read();
-        }
-
-
+                
     }//end class
 }//end namespace
