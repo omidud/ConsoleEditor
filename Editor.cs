@@ -83,7 +83,13 @@ namespace ConsoleEditor
                 if (count < buffer.Count)
                     contents += strLine + Environment.NewLine; ////important add the newlines
                 else
-                    contents += strLine; //no in the last line
+                {
+                    if(strLine == "")
+                        contents += strLine + Environment.NewLine;
+                    else
+                        contents += strLine; //no in the last line
+                }
+                    
             }
                        
 
