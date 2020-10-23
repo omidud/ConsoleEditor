@@ -5,7 +5,7 @@ using System.IO;
 
 namespace ConsoleEditor
 {
-    //Editor2
+    //Editor 2.2
     public class Editor
     {
         private int currLineY = 0;
@@ -21,7 +21,28 @@ namespace ConsoleEditor
             currFilename = "Untitled";
             buffer.Add("");
             Init();
-        }             
+        }
+
+
+        private string Center(string str, int width)
+        {
+            string outStr = "";
+
+            if (width <= str.Length)
+                return str;
+
+            int length = str.Length;
+            int padSize = (width / 2) - (length / 2);
+          
+            outStr = "".PadLeft(padSize, ' ') + str + "".PadRight(padSize, ' ');
+
+            if (outStr.Length < width)            
+                outStr = outStr + " ";               
+            
+
+            return outStr;
+        }
+
 
         public Editor(string filename)
         {
@@ -54,11 +75,17 @@ namespace ConsoleEditor
         private void SaveFile(string filename)
         {
             string contents = "";
+            int count = 0;
 
             foreach (string strLine in buffer)
             {
-                contents += strLine + Environment.NewLine; ////important add the newlines
+                count++;
+                if (count < buffer.Count)
+                    contents += strLine + Environment.NewLine; ////important add the newlines
+                else
+                    contents += strLine; //no in the last line
             }
+                       
 
             File.WriteAllText(filename, contents);
 
@@ -356,41 +383,59 @@ namespace ConsoleEditor
         private bool AskWhenExit()
         {
             bool retorna = false;
-            Console.CursorVisible = true;
+            //Console.CursorVisible = true;
             Console.CursorLeft = 0;
             Console.CursorTop = buffer.Count + 2;
 
-            int size = getMaxStringLenght() + margin;
-            Console.WriteLine("_".PadLeft(size, '_'));
+            //int size = getMaxStringLenght() + margin;
+            //if (size < 80) size = 80;
+            //Console.WriteLine("_".PadLeft(size, '_'));
+
+            string disPlayname = "";
+
+            if(File.Exists(currFilename))
+            {
+                FileInfo fInfo = new FileInfo(currFilename);
+                disPlayname = fInfo.Name;
+            }
+            else
+            {
+                disPlayname = currFilename;
+            }
+            // disPlayname = disPlayname.PadLeft(47);
+
+            // Console.ForegroundColor = ConsoleColor.Black;
+            // Console.BackgroundColor = ConsoleColor.White;
+            //ref. https://en.wikipedia.org/wiki/Box-drawing_character#Unix,_CP/M,_BBS
 
             string msgbox = @"
-                +-------------------------------------------------+
-                |                                                 |
-                |       Do you want to save the changes?          |                
-                |                                                 |
-                |  +----------+     +----------+    +----------+  |
-                |  |   [y]es  |     |   [N]o   |    | [C]ancel |  |
-                |  +----------+     +----------+    +----------+  |
-                |                                                 |
-                +-------------------------------------------------+
-                select: ";
+                ╔═════════════════════════════════════════════════╗
+                ║                                                 ║
+                ║       Do you want to save the changes?          ║
+                ║" + Center(disPlayname, 49) + @"║
+                ║                                                 ║
+                ║  ╔══════════╗     ╔══════════╗    ╔══════════╗  ║
+                ║  ║  [y]es   ║     ║   [N]o   ║    ║ [C]ancel ║  ║
+                ║  ╚══════════╝     ╚══════════╝    ╚══════════╝  ║
+                ║                                                 ║
+                ╚═════════════════════════════════════════════════╝";
 
+            Console.Clear();
             Console.Write(msgbox);
 
-            int tempX = Console.CursorLeft - 1;
-            int tempY = Console.CursorTop;
+           // int tempX = Console.CursorLeft - 1;
+           // int tempY = Console.CursorTop;
 
             bool continueAsking = true;
 
             while (continueAsking)
             {
-                int yesNoCancel = Console.Read();
-                Console.SetCursorPosition(tempX, tempY);
-                Console.Write(" ");
-                if (yesNoCancel == 'y' || yesNoCancel == 'Y')
-                {
-                    
-                    FlushKeyboard();
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                //Console.SetCursorPosition(tempX, tempY);
+                //Console.Write(" ");
+                if (keyInfo.Key == ConsoleKey.Y)
+                {                    
+                    //FlushKeyboard();
                     Console.WriteLine();
                     Console.Write("                Save as [" + currFilename + "]: ");
                     string filename = Console.ReadLine();
@@ -404,12 +449,12 @@ namespace ConsoleEditor
                     continueAsking = false;
                     retorna = true;
                 }
-                else if (yesNoCancel == 'n' || yesNoCancel == 'N')
+                else if (keyInfo.Key == ConsoleKey.N)
                 {
                     continueAsking = false;
                     retorna = true;
                 }
-                else if (yesNoCancel == 'c' || yesNoCancel == 'C')
+                else if (keyInfo.Key == ConsoleKey.C)
                 {
                     continueAsking = false;
                     retorna = false;
@@ -417,9 +462,6 @@ namespace ConsoleEditor
                 else
                     continueAsking = true;
             }
-
-
-
             return retorna;
 
         }
@@ -430,8 +472,6 @@ namespace ConsoleEditor
                 Console.In.Read();
         }
 
-
-        
 
     }//end class
 }//end namespace
