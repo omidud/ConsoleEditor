@@ -5,6 +5,7 @@ using System.IO;
 
 namespace ConsoleEditor
 {
+    //Editor2
     public class Editor
     {
         private int currLineY = 0;
@@ -29,13 +30,13 @@ namespace ConsoleEditor
         {
             currFilename = filename;
             X = 0;
-            string[] arrString = File.ReadAllLines(filename);          
+            string[] arrString = File.ReadAllLines(filename);
 
             foreach (string str in arrString)
             {
                 buffer.Add(str.Replace(Environment.NewLine, ""));
             }
-                 
+
 
 
             Refresh();
@@ -54,134 +55,163 @@ namespace ConsoleEditor
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                 Console.CursorVisible = false;
 
-                switch (keyInfo.Key)
+
+                if (keyInfo.Modifiers == ConsoleModifiers.Control)
                 {
-                    case ConsoleKey.UpArrow:
-                        if (currLineY > 0)
-                        {
-                            if (X > buffer[currLineY - 1].Length)
+                    if (keyInfo.Key == ConsoleKey.X)
+                    {
+                        //cut
+                    }
+                    else if (keyInfo.Key == ConsoleKey.C)
+                    {
+                        //copy
+                    }
+                    else if (keyInfo.Key == ConsoleKey.V)
+                    {
+                        //paste
+                    }
+                }
+                else if (keyInfo.Modifiers == 0)
+                {
+                    switch (keyInfo.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            if (currLineY > 0)
                             {
-                                X = buffer[currLineY - 1].Length;
-                                Console.CursorLeft = X + margin;
-                            }
-                            currLineY--;
-                            Console.CursorTop = currLineY;
-                        }
-                        break;
-                    case ConsoleKey.DownArrow:
-                        if (currLineY < buffer.Count)
-                        {
-                            if (currLineY + 1 < buffer.Count)
-                            {
-                                if (X > buffer[currLineY + 1].Length)
+                                if (X > buffer[currLineY - 1].Length)
                                 {
-                                    X = buffer[currLineY + 1].Length;
+                                    X = buffer[currLineY - 1].Length;
                                     Console.CursorLeft = X + margin;
                                 }
-                                currLineY++;
-                            }
-                            Console.CursorTop = currLineY;
-                        }
-                        break;
-                    case ConsoleKey.RightArrow:  //->
-                        if (X < buffer[currLineY].Length)
-                        {
-                            X++;
-                            Console.CursorLeft = X + margin;
-                        }
-                        break;
-                    case ConsoleKey.LeftArrow: //<-
-                        if (X > 0)
-                        {
-                            X--;
-                            Console.CursorLeft = X + margin;
-                        }
-                        break;
-                    case ConsoleKey.Home: //
-                        X = 0;
-                        Console.CursorLeft = X + margin;
-                        break;
-                    case ConsoleKey.End:
-                        X = buffer[currLineY].Length;
-                        Console.CursorLeft = X + margin; //put the cursor on the end of the string
-                        break;
-                    case ConsoleKey.Escape:
-                        running = false;
-                        break;
-                    case ConsoleKey.Delete:
-                        if (buffer.Count == 0)
-                            break;
-
-                        if (currLineY == buffer.Count)
-                            break;
-
-                        if (currLineY == buffer.Count - 1)
-                        {
-
-                            if (X < buffer[currLineY].Length)
-                            {
-                                buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                                WriteSentence(buffer[currLineY] + " ");
-                            }
-                            break;
-                        }
-
-                        if (currLineY >= 0)
-                        {
-                            if (buffer[currLineY] == "") //cursor is in a empty line and user press DEL
-                            {
-                                DoBackSpace();
-                                currLineY++;
-                                X = 0;
+                                currLineY--;
                                 Console.CursorTop = currLineY;
-                                Console.CursorLeft = X + margin;
-                                break;
                             }
-
-                            if (X == buffer[currLineY].Length) //cursor is in the end of the line and user press DEL
+                            break;
+                        case ConsoleKey.DownArrow:
+                            if (currLineY < buffer.Count)
                             {
-                                currLineY++;
-                                X = 0;
-                                DoBackSpace();
-                                break;
+                                if (currLineY + 1 < buffer.Count)
+                                {
+                                    if (X > buffer[currLineY + 1].Length)
+                                    {
+                                        X = buffer[currLineY + 1].Length;
+                                        Console.CursorLeft = X + margin;
+                                    }
+                                    currLineY++;
+                                }
+                                Console.CursorTop = currLineY;
                             }
-
+                            break;
+                        case ConsoleKey.RightArrow:  //->
                             if (X < buffer[currLineY].Length)
                             {
-                                buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                                WriteSentence(buffer[currLineY] + " ");
+                                X++;
+                                Console.CursorLeft = X + margin;
                             }
-                        }
-
-                        break;
-                    case ConsoleKey.Backspace:
-                        DoBackSpace();
-                        break;
-                    case ConsoleKey.Enter:
-                        DoEnter();
-                        break;
-                    default:
-                        if (buffer.Count == 0)
-                            buffer.Add("");
-
-                        if (buffer[currLineY] == null)
                             break;
+                        case ConsoleKey.LeftArrow: //<-
+                            if (X > 0)
+                            {
+                                X--;
+                                Console.CursorLeft = X + margin;
+                            }
+                            break;
+                        case ConsoleKey.Home: //
+                            X = 0;
+                            Console.CursorLeft = X + margin;
+                            break;
+                        case ConsoleKey.End:
+                            X = buffer[currLineY].Length;
+                            Console.CursorLeft = X + margin; //put the cursor on the end of the string
+                            break;
+                        case ConsoleKey.Escape:
+                            if (AskWhenExit())
+                            {
+                                running = false;
+                            }
+                            else
+                            {
+                                Refresh();
+                                running = true;
+                            }
+                            break;
+                        case ConsoleKey.Delete:
+                            if (buffer.Count == 0)
+                                break;
 
-                        if (X <= buffer[currLineY].Length)
-                        {
-                            buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
-                            X++;
-                            WriteSentence(buffer[currLineY]);
-                        }
+                            if (currLineY == buffer.Count)
+                                break;
 
-                        break;
-                }//end switch                
+                            if (currLineY == buffer.Count - 1)
+                            {
+
+                                if (X < buffer[currLineY].Length)
+                                {
+                                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
+                                    WriteSentence(buffer[currLineY] + " ");
+                                }
+                                break;
+                            }
+
+                            if (currLineY >= 0)
+                            {
+                                if (buffer[currLineY] == "") //cursor is in a empty line and user press DEL
+                                {
+                                    DoBackSpace();
+                                    currLineY++;
+                                    X = 0;
+                                    Console.CursorTop = currLineY;
+                                    Console.CursorLeft = X + margin;
+                                    break;
+                                }
+
+                                if (X == buffer[currLineY].Length) //cursor is in the end of the line and user press DEL
+                                {
+                                    currLineY++;
+                                    X = 0;
+                                    DoBackSpace();
+                                    break;
+                                }
+
+                                if (X < buffer[currLineY].Length)
+                                {
+                                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
+                                    WriteSentence(buffer[currLineY] + " ");
+                                }
+                            }
+
+                            break;
+                        case ConsoleKey.Backspace:
+                            DoBackSpace();
+                            break;
+                        case ConsoleKey.Enter:
+                            DoEnter();
+                            break;
+                        default:
+                            if (buffer.Count == 0)
+                                buffer.Add("");
+
+                            if (buffer[currLineY] == null)
+                                break;
+
+                            if (X <= buffer[currLineY].Length)
+                            {
+                                buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
+                                X++;
+                                WriteSentence(buffer[currLineY]);
+                            }
+
+                            break;
+                    }//end switch         
+                }
+
+
                 Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
                 Console.CursorVisible = true;
             }//end while
         }
 
-        private void WriteSentence(string sentence) 
+        private void WriteSentence(string sentence)
         {
             Console.CursorTop = currLineY;
             Console.CursorVisible = false;
@@ -207,7 +237,7 @@ namespace ConsoleEditor
             string enterData = buffer[currLineY];
             enterData = enterData.Substring(X, enterData.Length - X);
             buffer[currLineY] = buffer[currLineY].Substring(0, X);
-            buffer.Insert(currLineY + 1, enterData);           
+            buffer.Insert(currLineY + 1, enterData);
             Refresh();
             X = 0;
             Console.CursorLeft = X + margin;
@@ -255,7 +285,7 @@ namespace ConsoleEditor
                 if (currLineY > 0)
                 {
                     X = buffer[currLineY - 1].Length;
-                    buffer[currLineY - 1] = buffer[currLineY - 1] + temp;                   
+                    buffer[currLineY - 1] = buffer[currLineY - 1] + temp;
                     Refresh();
                     Console.CursorLeft = X + margin;
                     currLineY--;
@@ -282,6 +312,91 @@ namespace ConsoleEditor
             Console.CursorVisible = true;
         }
 
+        private int getMaxStringLenght()
+        {
+            int size = 0;
+            foreach (string str in buffer)
+            {
+                if (str.Length > size)
+                {
+                    size = str.Length;
+                }
+            }
+
+            return size;
+        }
+
+        private bool AskWhenExit()
+        {
+            bool retorna = false;
+            Console.CursorVisible = true;
+            Console.CursorLeft = 0;
+            Console.CursorTop = buffer.Count + 2;
+
+            int size = getMaxStringLenght() + margin;
+            Console.WriteLine("_".PadLeft(size, '_'));
+
+            string msgbox = @"
+                +-------------------------------------------------+
+                |                                                 |
+                |    Do you want to save changes to Untitled?     |
+                |                                                 |
+                |  +----------+     +----------+    +----------+  |
+                |  |   [y]es  |     |   [N]o   |    | [C]ancel |  |
+                |  +----------+     +----------+    +----------+  |
+                |                                                 |
+                +-------------------------------------------------+
+                select: ";
+
+            Console.Write(msgbox);
+
+            int tempX = Console.CursorLeft;
+            int tempY = Console.CursorTop;
+
+
+
+
+            bool continueAsking = true;
+
+            while (continueAsking)
+            {
+                int yesNoCancel = Console.Read();
+                Console.SetCursorPosition(tempX, tempY);
+                Console.Write(" ");
+                if (yesNoCancel == 'y' || yesNoCancel == 'Y')
+                {
+                    continueAsking = false;
+                    FlushKeyboard();
+                    Console.WriteLine();
+                    Console.Write("                Save as [" + currFilename + "]: ");
+                    string filename = Console.ReadLine();
+                    retorna = true;
+                }
+                else if (yesNoCancel == 'n' || yesNoCancel == 'N')
+                {
+                    continueAsking = false;
+                    retorna = true;
+                }
+                else if (yesNoCancel == 'c' || yesNoCancel == 'C')
+                {
+                    continueAsking = false;
+                    retorna = false;
+                }
+                else
+                    continueAsking = true;
+            }
+
+
+
+            return retorna;
+
+        }
+
+        private void FlushKeyboard()
+        {
+            while (Console.In.Peek() != -1)
+                Console.In.Read();
+        }
 
     }//end class
 }//end namespace
