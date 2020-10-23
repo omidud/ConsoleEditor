@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConsoleEditor": {
+      "commandName": "Project",
+      "commandLineArgs": "hola.txt"
+    }
+  }
+}
