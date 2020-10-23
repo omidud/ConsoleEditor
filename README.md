@@ -2,6 +2,7 @@
 C# Console Editor with line number
 just one class Editor.cs
 
+Current Update in branch Editor.cs version 2.1
 
 Do list:
 1. Open file from the command line argument - Done
