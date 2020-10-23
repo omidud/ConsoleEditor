@@ -2,9 +2,9 @@
 C# Console Editor with line number
 just one class Editor.cs
 
-Current Update in branch Editor2.2
-- SaveFile bug fix
-- MessageBox look better
+Current Update in branch Editor2.4
+- I Organize the code in more files
+
 
 
 Do list:
