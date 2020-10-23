@@ -269,6 +269,8 @@ namespace ConsoleEditor
                 Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
                 Console.CursorVisible = true;
             }//end while
+
+            Console.Clear();
         }
 
         private void WriteSentence(string sentence)
