@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace ConsoleEditor
 {
-    //Editor 2.4
+    //Editor 2.5
     public class Editor
     {
-        private int currLineY = 0;
-        private List<string> buffer = new List<string>();
-        private int X = 0;
+        private Point bufferPosition = new Point();
+        private List<string> buffer = new List<string>();        
         private string currFilename;
-        private int paddingSize = 0;
+        private int padding = 0;
         private int margin = 0;
 
         public Editor() //no filename provided,  currFilename = "Untitled";
         {
             //new file Untitled
-            currFilename = "Untitled";
+            currFilename = "Untitled";           
             buffer.Add("");            
-            Screen.Init(ref buffer, ref paddingSize, ref margin, ref X, ref currLineY);
+            Screen.Init(ref buffer, ref bufferPosition, ref margin, ref padding);
         }
 
         public Editor(string filename)
@@ -37,15 +35,16 @@ namespace ConsoleEditor
             {
                 //new file but with filename
                 buffer.Add("");
-            }
-            
-            Screen.Init(ref buffer,ref paddingSize, ref margin, ref X,ref currLineY);                        
+            }            
+            Screen.Init(ref buffer, ref bufferPosition, ref margin, ref padding);
         }
                
         public void Run()
         {
+            Console.Title = "Y: " + bufferPosition.Y.ToString() + "  X: " + bufferPosition.X.ToString();
             Console.TreatControlCAsInput = true;
             bool running = true;
+            Console.CursorLeft = margin;
 
             while (running)
             {
@@ -58,10 +57,10 @@ namespace ConsoleEditor
                     switch(keyInfo.Key)
                     {
                         case ConsoleKey.Home:
-                            KeyInput.CtrlHome(ref X, ref currLineY, ref margin);
+                            KeyInput.CtrlHome(ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.End:
-                            KeyInput.CtrlEnd(ref buffer, ref X, ref currLineY, ref margin);
+                            KeyInput.CtrlEnd(ref buffer, ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.X:
                             //cut
@@ -83,47 +82,47 @@ namespace ConsoleEditor
                     switch (keyInfo.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            KeyInput.UpArrow(ref buffer, ref X, ref currLineY, ref margin);
+                            KeyInput.UpArrow(ref buffer, ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.DownArrow:
-                            KeyInput.DownArrow(ref buffer, ref X, ref currLineY, ref margin);                            
+                            KeyInput.DownArrow(ref buffer, ref bufferPosition, ref margin);                            
                             break;
                         case ConsoleKey.RightArrow:  
-                            KeyInput.RightArrow(ref buffer, ref X, ref currLineY, ref margin);                            
+                            KeyInput.RightArrow(ref buffer, ref bufferPosition, ref margin);                            
                             break;
                         case ConsoleKey.LeftArrow:
-                            KeyInput.LeftArrow(ref X, ref margin);
+                            KeyInput.LeftArrow(ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.Home:
-                            KeyInput.Home(ref X, ref margin);                            
+                            KeyInput.Home(ref bufferPosition, ref margin);                            
                             break;
                         case ConsoleKey.End:
-                            KeyInput.End(ref buffer, ref X, ref currLineY, ref margin);                            
+                            KeyInput.End(ref buffer, ref bufferPosition, ref margin);                            
                             break;                       
                         case ConsoleKey.Delete:
-                            KeyInput.Delete(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
+                            KeyInput.Delete(ref buffer, ref bufferPosition, ref margin, ref padding);
                             break;
                         case ConsoleKey.Backspace:                                                       
-                            KeyInput.BackSpace(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
+                            KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
                             break;
                         case ConsoleKey.Enter:                            
-                            KeyInput.Enter(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
+                            KeyInput.Enter(ref buffer, ref bufferPosition, ref margin, ref padding);
                             break;
                         case ConsoleKey.PageDown:
-                            KeyInput.PageDown(ref buffer, ref X, ref currLineY, ref margin);
+                            KeyInput.PageDown(ref buffer, ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.PageUp:
-                            KeyInput.PageUp(ref buffer, ref X, ref currLineY, ref margin);
+                            KeyInput.PageUp(ref buffer, ref bufferPosition, ref margin);
                             break;
                         case ConsoleKey.Escape:
-                            KeyInput.Escape(ref buffer, ref currFilename, ref running, ref margin, ref paddingSize);                           
+                            KeyInput.Escape(ref buffer, ref currFilename, ref running, ref margin, ref padding);                           
                             break;
                         default:
-                            KeyInput.Default(ref buffer, ref X, ref currLineY, ref margin, ref keyInfo);                           
+                            KeyInput.Default(ref buffer, ref bufferPosition, ref margin, ref keyInfo);                           
                             break;
                     }//end switch         
                 }
-                Console.Title = "Current Line: " + currLineY.ToString() + "  X: " + X.ToString();
+                //Console.Title = "Y: " + bufferPosition.Y.ToString() + "  X: " + bufferPosition.X.ToString();
                 Console.CursorVisible = true;
             }//end while
 

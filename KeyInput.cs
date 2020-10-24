@@ -1,199 +1,196 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace ConsoleEditor
-{
-    //For Editor.cs 2.4 and up
+{    
     //this class is a helper, to clean the Editor.cs code
     //work the key inputs of the user    
     public static class KeyInput
     {
-        public static void Enter(ref List<string> buffer, ref int X, ref int currLineY, ref int margin, ref int paddingSize)
+        public static void Enter(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding)
         {
-            if (currLineY == buffer.Count)
+            if (bufferPosition.Y == buffer.Count)
             {
                 buffer.Add("");
             }
 
-            string enterData = buffer[currLineY];
-            enterData = enterData.Substring(X, enterData.Length - X);
-            buffer[currLineY] = buffer[currLineY].Substring(0, X);
-            buffer.Insert(currLineY + 1, enterData);
-            Screen.Refresh(ref buffer, ref paddingSize, ref margin);
-            X = 0;
-            Console.CursorLeft = X + margin;
-            currLineY++;
-            Console.CursorTop = currLineY;
+            string enterData = buffer[bufferPosition.Y];
+            enterData = enterData.Substring(bufferPosition.X, enterData.Length - bufferPosition.X);
+            buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Substring(0, bufferPosition.X);
+            buffer.Insert(bufferPosition.Y + 1, enterData);
+            Screen.Refresh(ref buffer, ref padding, ref margin);
+            bufferPosition.X = 0;
+            Console.CursorLeft = bufferPosition.X + margin;
+            bufferPosition.Y++;
+            Console.CursorTop = bufferPosition.Y;
         }
 
-        public static void BackSpace(ref List<string> buffer, ref int X, ref int currLineY, ref int margin, ref int paddingSize) 
+        public static void BackSpace(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding) 
         {
-            if (X > 0)
+            if (bufferPosition.X > 0)
             {
-                if (X < buffer[currLineY].Length)
+                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
                 {
-                    string leftPart = buffer[currLineY].Substring(0, X - 1);
-                    string rightPart = buffer[currLineY].Substring(X, buffer[currLineY].Length - X);
-                    buffer[currLineY] = leftPart + rightPart;
+                    string leftPart = buffer[bufferPosition.Y].Substring(0, bufferPosition.X - 1);
+                    string rightPart = buffer[bufferPosition.Y].Substring(bufferPosition.X, buffer[bufferPosition.Y].Length - bufferPosition.X);
+                    buffer[bufferPosition.Y] = leftPart + rightPart;
                 }
                 else
                 {
-                    string backLine = buffer[currLineY].Substring(0, buffer[currLineY].Length - 1);
-                    buffer[currLineY] = backLine;
+                    string backLine = buffer[bufferPosition.Y].Substring(0, buffer[bufferPosition.Y].Length - 1);
+                    buffer[bufferPosition.Y] = backLine;
                 }
-                X--;
-                Screen.WriteSentence(buffer[currLineY] + " ", ref currLineY,ref margin,ref X);
+                bufferPosition.X--;
+                Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
             }
-            else if (X == 0)
+            else if (bufferPosition.X == 0)
             {
 
                 if (buffer.Count == 0)
                     return;
 
-                if (currLineY == buffer.Count)
+                if (bufferPosition.Y == buffer.Count)
                 {
-                    currLineY--;
+                    bufferPosition.Y--;
                     return;
                 }
 
 
-                if (buffer[currLineY] == null)
+                if (buffer[bufferPosition.Y] == null)
                     return;
 
-                string temp = buffer[currLineY];
-                buffer.RemoveAt(currLineY);
+                string temp = buffer[bufferPosition.Y];
+                buffer.RemoveAt(bufferPosition.Y);
 
-                if (currLineY > 0)
+                if (bufferPosition.Y > 0)
                 {
-                    X = buffer[currLineY - 1].Length;
-                    buffer[currLineY - 1] = buffer[currLineY - 1] + temp;
-                    Screen.Refresh(ref buffer,ref paddingSize, ref margin);
-                    Console.CursorLeft = X + margin;
-                    currLineY--;
-                    Console.CursorTop = currLineY;
+                    bufferPosition.X = buffer[bufferPosition.Y - 1].Length;
+                    buffer[bufferPosition.Y - 1] = buffer[bufferPosition.Y - 1] + temp;
+                    Screen.Refresh(ref buffer,ref padding, ref margin);
+                    Console.CursorLeft = bufferPosition.X + margin;
+                    bufferPosition.Y--;
+                    Console.CursorTop = bufferPosition.Y;
                 }
             }
         }
 
-        public static void UpArrow(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void UpArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
-            if (currLineY > 0)
+            if (bufferPosition.Y > 0)
             {
-                if (X > buffer[currLineY - 1].Length)
+                if (bufferPosition.X > buffer[bufferPosition.Y - 1].Length)
                 {
-                    X = buffer[currLineY - 1].Length;
-                    Console.CursorLeft = X + margin;
+                    bufferPosition.X = buffer[bufferPosition.Y - 1].Length;
+                    Console.CursorLeft = bufferPosition.X + margin;
                 }
-                currLineY--;
-                Console.CursorTop = currLineY;
+                bufferPosition.Y--;
+                Console.CursorTop = bufferPosition.Y;
             }
         }
 
-        public static void DownArrow(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void DownArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
-            if (currLineY < buffer.Count)
+            if (bufferPosition.Y < buffer.Count)
             {
-                if (currLineY + 1 < buffer.Count)
+                if (bufferPosition.Y + 1 < buffer.Count)
                 {
-                    if (X > buffer[currLineY + 1].Length)
+                    if (bufferPosition.X > buffer[bufferPosition.Y + 1].Length)
                     {
-                        X = buffer[currLineY + 1].Length;
-                        Console.CursorLeft = X + margin;
+                        bufferPosition.X = buffer[bufferPosition.Y + 1].Length;
+                        Console.CursorLeft = bufferPosition.X + margin;
                     }
-                    currLineY++;
+                    bufferPosition.Y++;
                 }
-                Console.CursorTop = currLineY;
+                Console.CursorTop = bufferPosition.Y;
             }
         }
 
-        public static void RightArrow(ref List<string> buffer, ref int X, ref int currLineY, ref int margin )
+        public static void RightArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin )
         {
             if(buffer.Count > 0)
             {
-                if (X < buffer[currLineY].Length)
+                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
                 {
-                    X++;
-                    Console.CursorLeft = X + margin;
+                    bufferPosition.X++;
+                    Console.CursorLeft = bufferPosition.X + margin;
                 }
             }
            
         }
 
-        public static void LeftArrow(ref int X, ref int margin)
+        public static void LeftArrow(ref Point bufferPosition, ref int margin)
         {
-            if (X > 0)
+            if (bufferPosition.X > 0)
             {
-                X--;
-                Console.CursorLeft = X + margin;
+                bufferPosition.X--;
+                Console.CursorLeft = bufferPosition.X + margin;
             }
         }
 
-        public static void Home(ref int X, ref int margin)
+        public static void Home(ref Point bufferPosition, ref int margin)
         {
-            X = 0;
-            Console.CursorLeft = X + margin;
+            bufferPosition.X = 0;
+            Console.CursorLeft = bufferPosition.X + margin;
         }
 
-        public static void End(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void End(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
             if(buffer.Count > 0)
             {
-                X = buffer[currLineY].Length;
-                Console.CursorLeft = X + margin; //put the cursor on the end of the string
+                bufferPosition.X = buffer[bufferPosition.Y].Length;
+                Console.CursorLeft = bufferPosition.X + margin; //put the cursor on the end of the string
             }
             
         }
 
-        public static void Delete(ref List<string> buffer, ref int X, ref int currLineY, ref int margin, ref int paddingSize)
+        public static void Delete(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding)
         {
             if (buffer.Count == 0)
                 return;
 
-            if (currLineY == buffer.Count)
+            if (bufferPosition.Y == buffer.Count)
                 return;
 
-            if (currLineY == buffer.Count - 1)
+            if (bufferPosition.Y == buffer.Count - 1)
             {
 
-                if (X < buffer[currLineY].Length)
+                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
                 {
-                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                    Screen.WriteSentence(buffer[currLineY] + " ", ref currLineY, ref margin, ref X);
+                    buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Remove(bufferPosition.X, 1);
+                    Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
                 }
                 return;
             }
 
-            if (currLineY >= 0)
+            if (bufferPosition.Y >= 0)
             {
-                if (buffer[currLineY] == "") //cursor is in a empty line and user press DEL
+                if (buffer[bufferPosition.Y] == "") //cursor is in a empty line and user press DEL
                 {
-                    KeyInput.BackSpace(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
-                    currLineY++;
-                    X = 0;
-                    Console.CursorTop = currLineY;
-                    Console.CursorLeft = X + margin;
+                    KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
+                    bufferPosition.Y++;
+                    bufferPosition.X = 0;
+                    Console.CursorTop = bufferPosition.Y;
+                    Console.CursorLeft = bufferPosition.X + margin;
                     return;
                 }
 
-                if (X == buffer[currLineY].Length) //cursor is in the end of the line and user press DEL
+                if (bufferPosition.X == buffer[bufferPosition.Y].Length) //cursor is in the end of the line and user press DEL
                 {
-                    currLineY++;
-                    X = 0;                    
-                    KeyInput.BackSpace(ref buffer, ref X, ref currLineY, ref margin, ref paddingSize);
+                    bufferPosition.Y++;
+                    bufferPosition.X = 0;                    
+                    KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
                     return;
                 }
 
-                if (X < buffer[currLineY].Length)
+                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
                 {
-                    buffer[currLineY] = buffer[currLineY].Remove(X, 1);
-                    Screen.WriteSentence(buffer[currLineY] + " ", ref currLineY, ref margin, ref X);
+                    buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Remove(bufferPosition.X, 1);
+                    Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
                 }
             }
         }
 
-        public static void Escape(ref List<string> buffer, ref string currFilename,ref bool running, ref int margin, ref int paddingSize)
+        public static void Escape(ref List<string> buffer, ref string currFilename,ref bool running, ref int margin, ref int padding)
         {            
             if (ConfirmBox.Show(ref buffer, currFilename))
             {
@@ -201,116 +198,99 @@ namespace ConsoleEditor
             }
             else
             {
-                Screen.Refresh(ref buffer, ref paddingSize, ref margin);
+                Screen.Refresh(ref buffer, ref padding, ref margin);
                 running = true;
             }
         }
 
-        public static void Default(ref List<string> buffer, ref int X, ref int currLineY,ref int margin, ref ConsoleKeyInfo keyInfo)
+        public static void Default(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref ConsoleKeyInfo keyInfo)
         {
             if (buffer.Count == 0)
                 buffer.Add("");
 
-            if (buffer[currLineY] == null)
+            if (buffer[bufferPosition.Y] == null)
                 return;
 
-            if (X <= buffer[currLineY].Length)
+            if (bufferPosition.X <= buffer[bufferPosition.Y].Length)
             {
-                buffer[currLineY] = buffer[currLineY].Insert(X, keyInfo.KeyChar.ToString());
-                X++;
-                Screen.WriteSentence(buffer[currLineY], ref currLineY, ref margin, ref X);
+                buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Insert(bufferPosition.X, keyInfo.KeyChar.ToString());
+                bufferPosition.X++;
+                Screen.WriteSentence(buffer[bufferPosition.Y], ref bufferPosition, ref margin);
             }
         }
 
-        public static void PageDown(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void PageDown(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
             int pageHeight = Console.WindowHeight;
-           // int lastPageHeight = buffer.Count % Console.WindowHeight;
 
-
-            if (currLineY < buffer.Count)
+            if (bufferPosition.Y < buffer.Count)
             {
-                if (currLineY + pageHeight < buffer.Count)
+                if (bufferPosition.Y + pageHeight < buffer.Count)
                 {
-                    if (X > buffer[currLineY + pageHeight].Length)
+                    if (bufferPosition.X > buffer[bufferPosition.Y + pageHeight].Length)
                     {
-                        X = buffer[currLineY + pageHeight].Length;
-                        Console.CursorLeft = X + margin;
+                        bufferPosition.X = buffer[bufferPosition.Y + pageHeight].Length;
+                        Console.CursorLeft = bufferPosition.X + margin;
                     }
-                    currLineY = currLineY + pageHeight;
+                    bufferPosition.Y = bufferPosition.Y + pageHeight;
                 }
                 else
                 {
-                    currLineY = buffer.Count - 1;
+                    bufferPosition.Y = buffer.Count - 1;
 
-                    if (X > buffer[currLineY].Length)
+                    if (bufferPosition.X > buffer[bufferPosition.Y].Length)
                     {
-                        X = buffer[currLineY].Length;
-                        Console.CursorLeft = X + margin;
-                    }
-
-
-                    //if (currLineY + lastPageHeight <= buffer.Count)
-                    //{
-                    //    if (X > buffer[currLineY + lastPageHeight - 1].Length)
-                    //    {
-                    //        X = buffer[currLineY + lastPageHeight - 1].Length;
-                    //        Console.CursorLeft = X + margin;
-                    //    }
-                    //    currLineY = currLineY + lastPageHeight - 1;
-                    //}
+                        bufferPosition.X = buffer[bufferPosition.Y].Length;
+                        Console.CursorLeft = bufferPosition.X + margin;
+                    }                   
                 }
 
-                Console.CursorTop = currLineY;
+                Console.CursorTop = bufferPosition.Y;
             }
         }
 
-        public static void PageUp(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void PageUp(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
-            int pageHeight = Console.WindowHeight;
-           // int lastPageHeight = buffer.Count % Console.WindowHeight;
+            int pageHeight = Console.WindowHeight;          
 
-            if (currLineY > 0)
+            if (bufferPosition.Y > 0)
             {
-                if (currLineY - pageHeight < 0)
+                if (bufferPosition.Y - pageHeight < 0)
                 {
-                    if (X > buffer[0].Length)
+                    if (bufferPosition.X > buffer[0].Length)
                     {
-                        X = buffer[0].Length;
-                        Console.CursorLeft = X + margin;
+                        bufferPosition.X = buffer[0].Length;
+                        Console.CursorLeft = bufferPosition.X + margin;
                     }
-                    currLineY = 0;
+                    bufferPosition.Y = 0;
                 }
                 else
                 {
-                    if (X > buffer[currLineY - pageHeight].Length)
+                    if (bufferPosition.X > buffer[bufferPosition.Y - pageHeight].Length)
                     {
-                        X = buffer[currLineY - pageHeight].Length;
-                        Console.CursorLeft = X + margin;
+                        bufferPosition.X = buffer[bufferPosition.Y - pageHeight].Length;
+                        Console.CursorLeft = bufferPosition.X + margin;
                     }
-                    currLineY = currLineY - pageHeight;
+                    bufferPosition.Y = bufferPosition.Y - pageHeight;
                 }
-
-
-                Console.CursorTop = currLineY;
+                Console.CursorTop = bufferPosition.Y;
             }
         }
-
         
-        public static void CtrlHome(ref int X, ref int currLineY, ref int margin)        
+        public static void CtrlHome(ref Point bufferPosition, ref int margin)        
         {
-            currLineY = 0;
-            X = 0;
-            Console.CursorLeft = X + margin;
-            Console.CursorTop = currLineY;
+            bufferPosition.Y = 0;
+            bufferPosition.X = 0;
+            Console.CursorLeft = bufferPosition.X + margin;
+            Console.CursorTop = bufferPosition.Y;
         }
 
-        public static void CtrlEnd(ref List<string> buffer, ref int X, ref int currLineY, ref int margin)
+        public static void CtrlEnd(ref List<string> buffer, ref Point bufferPosition, ref int margin)
         {
-            currLineY = buffer.Count - 1;
-            X = buffer[currLineY].Length;
-            Console.CursorLeft = X + margin;
-            Console.CursorTop = currLineY;
+            bufferPosition.Y = buffer.Count - 1;
+            bufferPosition.X = buffer[bufferPosition.Y].Length;
+            Console.CursorLeft = bufferPosition.X + margin;
+            Console.CursorTop = bufferPosition.Y;
         }
 
 

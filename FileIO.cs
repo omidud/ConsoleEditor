@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace ConsoleEditor
-{
-    //For Editor.cs 2.4 and up
+{    
     // work the save and open file
     public static class FileIO
     {

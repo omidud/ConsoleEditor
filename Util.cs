@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ConsoleEditor
-{
-    //For Editor.cs 2.4 and up
+{    
     public static class Util
     {
         public static string Center(string str, int width)
