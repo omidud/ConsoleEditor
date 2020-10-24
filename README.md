@@ -1,10 +1,20 @@
 # ConsoleEditor
-C# Console Editor with line number
-just one class Editor.cs
+C# Console Editor 
 
-Current Update in branch Editor2.4
-- I Organize the code in more files
 
+Current Update in branch Editor2.6 [netcoreapp3.1]
+- Organizing and cleaning code
+- added:
+
+- CtrlHome
+- CtrlEnd
+- PageUp
+- PageDown
+
+comming soon:
+- key tabs
+- Cut, Copy, Paste
+- Ctr+ S for save
 
 
 Do list:
