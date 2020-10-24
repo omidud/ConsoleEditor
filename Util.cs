@@ -24,10 +24,10 @@ namespace ConsoleEditor
             return outStr;
         }
 
-        public static int getMaxStringLenght(ref List<string> buffer)
+        public static int getMaxStringLenght(ref EditData data)
         {
             int size = 0;
-            foreach (string str in buffer)
+            foreach (string str in data.buffer)
             {
                 if (str.Length > size)
                 {

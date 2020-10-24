@@ -7,290 +7,298 @@ namespace ConsoleEditor
     //work the key inputs of the user    
     public static class KeyInput
     {
-        public static void Enter(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding)
+        public static void Enter(ref EditData data)
         {
-            if (bufferPosition.Y == buffer.Count)
+            if (data.bufferPosition.Y == data.buffer.Count)
             {
-                buffer.Add("");
+                data.buffer.Add("");
             }
 
-            string enterData = buffer[bufferPosition.Y];
-            enterData = enterData.Substring(bufferPosition.X, enterData.Length - bufferPosition.X);
-            buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Substring(0, bufferPosition.X);
-            buffer.Insert(bufferPosition.Y + 1, enterData);
-            Screen.Refresh(ref buffer, ref padding, ref margin);
-            bufferPosition.X = 0;
-            Console.CursorLeft = bufferPosition.X + margin;
-            bufferPosition.Y++;
-            Console.CursorTop = bufferPosition.Y;
+            string enterData = data.buffer[data.bufferPosition.Y];
+            enterData = enterData.Substring(data.bufferPosition.X, enterData.Length - data.bufferPosition.X);
+            data.buffer[data.bufferPosition.Y] = data.buffer[data.bufferPosition.Y].Substring(0, data.bufferPosition.X);
+            data.buffer.Insert(data.bufferPosition.Y + 1, enterData);
+            Screen.Refresh(ref data);
+            data.bufferPosition.X = 0;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
+            data.bufferPosition.Y++;
+            Console.CursorTop = data.bufferPosition.Y;
         }
 
-        public static void BackSpace(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding) 
+        public static void BackSpace(ref EditData data) 
         {
-            if (bufferPosition.X > 0)
+            if (data.bufferPosition.X > 0)
             {
-                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
+                if (data.bufferPosition.X < data.buffer[data.bufferPosition.Y].Length)
                 {
-                    string leftPart = buffer[bufferPosition.Y].Substring(0, bufferPosition.X - 1);
-                    string rightPart = buffer[bufferPosition.Y].Substring(bufferPosition.X, buffer[bufferPosition.Y].Length - bufferPosition.X);
-                    buffer[bufferPosition.Y] = leftPart + rightPart;
+                    string leftPart = data.buffer[data.bufferPosition.Y].Substring(0, data.bufferPosition.X - 1);
+                    string rightPart = data.buffer[data.bufferPosition.Y].Substring(data.bufferPosition.X, data.buffer[data.bufferPosition.Y].Length - data.bufferPosition.X);
+                    data.buffer[data.bufferPosition.Y] = leftPart + rightPart;
                 }
                 else
                 {
-                    string backLine = buffer[bufferPosition.Y].Substring(0, buffer[bufferPosition.Y].Length - 1);
-                    buffer[bufferPosition.Y] = backLine;
+                    string backLine = data.buffer[data.bufferPosition.Y].Substring(0, data.buffer[data.bufferPosition.Y].Length - 1);
+                    data.buffer[data.bufferPosition.Y] = backLine;
                 }
-                bufferPosition.X--;
-                Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
+                data.bufferPosition.X--;
+                Screen.WriteSentence(data.buffer[data.bufferPosition.Y] + " ", ref data);
             }
-            else if (bufferPosition.X == 0)
+            else if (data.bufferPosition.X == 0)
             {
 
-                if (buffer.Count == 0)
+                if (data.buffer.Count == 0)
                     return;
 
-                if (bufferPosition.Y == buffer.Count)
+                if (data.bufferPosition.Y == data.buffer.Count)
                 {
-                    bufferPosition.Y--;
+                    data.bufferPosition.Y--;
                     return;
                 }
 
 
-                if (buffer[bufferPosition.Y] == null)
+                if (data.buffer[data.bufferPosition.Y] == null)
                     return;
 
-                string temp = buffer[bufferPosition.Y];
-                buffer.RemoveAt(bufferPosition.Y);
+                string temp = data.buffer[data.bufferPosition.Y];
+                data.buffer.RemoveAt(data.bufferPosition.Y);
 
-                if (bufferPosition.Y > 0)
+                if (data.bufferPosition.Y > 0)
                 {
-                    bufferPosition.X = buffer[bufferPosition.Y - 1].Length;
-                    buffer[bufferPosition.Y - 1] = buffer[bufferPosition.Y - 1] + temp;
-                    Screen.Refresh(ref buffer,ref padding, ref margin);
-                    Console.CursorLeft = bufferPosition.X + margin;
-                    bufferPosition.Y--;
-                    Console.CursorTop = bufferPosition.Y;
+                    data.bufferPosition.X = data.buffer[data.bufferPosition.Y - 1].Length;
+                    data.buffer[data.bufferPosition.Y - 1] = data.buffer[data.bufferPosition.Y - 1] + temp;
+                    Screen.Refresh(ref data);
+                    Console.CursorLeft = data.bufferPosition.X + data.margin;
+                    data.bufferPosition.Y--;
+                    Console.CursorTop = data.bufferPosition.Y;
                 }
-            }
-        }
-
-        public static void UpArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin)
-        {
-            if (bufferPosition.Y > 0)
-            {
-                if (bufferPosition.X > buffer[bufferPosition.Y - 1].Length)
+                else if(data.bufferPosition.Y == 0) ///verificar esto
                 {
-                    bufferPosition.X = buffer[bufferPosition.Y - 1].Length;
-                    Console.CursorLeft = bufferPosition.X + margin;
+                    data.bufferPosition.X = data.buffer[0].Length;
+                    data.buffer[0] = data.buffer[0] + temp;
+                    Screen.Refresh(ref data);
+                    Console.CursorLeft = data.bufferPosition.X + data.margin;
+                    data.bufferPosition.Y = 0;
+                    Console.CursorTop = data.bufferPosition.Y;
                 }
-                bufferPosition.Y--;
-                Console.CursorTop = bufferPosition.Y;
             }
         }
 
-        public static void DownArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin)
+        public static void UpArrow(ref EditData data)
         {
-            if (bufferPosition.Y < buffer.Count)
+            if (data.bufferPosition.Y > 0)
             {
-                if (bufferPosition.Y + 1 < buffer.Count)
+                if (data.bufferPosition.X > data.buffer[data.bufferPosition.Y - 1].Length)
                 {
-                    if (bufferPosition.X > buffer[bufferPosition.Y + 1].Length)
+                    data.bufferPosition.X = data.buffer[data.bufferPosition.Y - 1].Length;
+                    Console.CursorLeft = data.bufferPosition.X + data.margin;
+                }
+                data.bufferPosition.Y--;
+                Console.CursorTop = data.bufferPosition.Y;
+            }
+        }
+
+        public static void DownArrow(ref EditData data)
+        {
+            if (data.bufferPosition.Y < data.buffer.Count)
+            {
+                if (data.bufferPosition.Y + 1 < data.buffer.Count)
+                {
+                    if (data.bufferPosition.X > data.buffer[data.bufferPosition.Y + 1].Length)
                     {
-                        bufferPosition.X = buffer[bufferPosition.Y + 1].Length;
-                        Console.CursorLeft = bufferPosition.X + margin;
+                        data.bufferPosition.X = data.buffer[data.bufferPosition.Y + 1].Length;
+                        Console.CursorLeft = data.bufferPosition.X + data.margin;
                     }
-                    bufferPosition.Y++;
+                    data.bufferPosition.Y++;
                 }
-                Console.CursorTop = bufferPosition.Y;
+                Console.CursorTop = data.bufferPosition.Y;
             }
         }
 
-        public static void RightArrow(ref List<string> buffer, ref Point bufferPosition, ref int margin )
+        public static void RightArrow(ref EditData data)
         {
-            if(buffer.Count > 0)
+            if(data.buffer.Count > 0)
             {
-                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
+                if (data.bufferPosition.X < data.buffer[data.bufferPosition.Y].Length)
                 {
-                    bufferPosition.X++;
-                    Console.CursorLeft = bufferPosition.X + margin;
+                    data.bufferPosition.X++;
+                    Console.CursorLeft = data.bufferPosition.X + data.margin;
                 }
             }
            
         }
 
-        public static void LeftArrow(ref Point bufferPosition, ref int margin)
+        public static void LeftArrow(ref EditData data)
         {
-            if (bufferPosition.X > 0)
+            if (data.bufferPosition.X > 0)
             {
-                bufferPosition.X--;
-                Console.CursorLeft = bufferPosition.X + margin;
+                data.bufferPosition.X--;
+                Console.CursorLeft = data.bufferPosition.X + data.margin;
             }
         }
 
-        public static void Home(ref Point bufferPosition, ref int margin)
+        public static void Home(ref EditData data)
         {
-            bufferPosition.X = 0;
-            Console.CursorLeft = bufferPosition.X + margin;
+            data.bufferPosition.X = 0;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
         }
 
-        public static void End(ref List<string> buffer, ref Point bufferPosition, ref int margin)
+        public static void End(ref EditData data)
         {
-            if(buffer.Count > 0)
+            if(data.buffer.Count > 0)
             {
-                bufferPosition.X = buffer[bufferPosition.Y].Length;
-                Console.CursorLeft = bufferPosition.X + margin; //put the cursor on the end of the string
-            }
-            
+                data.bufferPosition.X = data.buffer[data.bufferPosition.Y].Length;
+                Console.CursorLeft = data.bufferPosition.X + data.margin; //put the cursor on the end of the string
+            }            
         }
 
-        public static void Delete(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref int padding)
+        public static void Delete(ref EditData data)
         {
-            if (buffer.Count == 0)
+            if (data.buffer.Count == 0)
                 return;
 
-            if (bufferPosition.Y == buffer.Count)
+            if (data.bufferPosition.Y == data.buffer.Count)
                 return;
 
-            if (bufferPosition.Y == buffer.Count - 1)
+            if (data.bufferPosition.Y == data.buffer.Count - 1)
             {
 
-                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
+                if (data.bufferPosition.X < data.buffer[data.bufferPosition.Y].Length)
                 {
-                    buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Remove(bufferPosition.X, 1);
-                    Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
+                    data.buffer[data.bufferPosition.Y] = data.buffer[data.bufferPosition.Y].Remove(data.bufferPosition.X, 1);
+                    Screen.WriteSentence(data.buffer[data.bufferPosition.Y] + " ", ref data);
                 }
                 return;
             }
 
-            if (bufferPosition.Y >= 0)
+            if (data.bufferPosition.Y >= 0)
             {
-                if (buffer[bufferPosition.Y] == "") //cursor is in a empty line and user press DEL
+                if (data.buffer[data.bufferPosition.Y] == "") //cursor is in a empty line and user press DEL
                 {
-                    KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
-                    bufferPosition.Y++;
-                    bufferPosition.X = 0;
-                    Console.CursorTop = bufferPosition.Y;
-                    Console.CursorLeft = bufferPosition.X + margin;
+                    KeyInput.BackSpace(ref data);
+                    data.bufferPosition.Y++;
+                    data.bufferPosition.X = 0;
+                    Console.CursorTop = data.bufferPosition.Y;
+                    Console.CursorLeft = data.bufferPosition.X + data.margin;
                     return;
                 }
 
-                if (bufferPosition.X == buffer[bufferPosition.Y].Length) //cursor is in the end of the line and user press DEL
+                if (data.bufferPosition.X == data.buffer[data.bufferPosition.Y].Length) //cursor is in the end of the line and user press DEL
                 {
-                    bufferPosition.Y++;
-                    bufferPosition.X = 0;                    
-                    KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
+                    data.bufferPosition.Y++;
+                    data.bufferPosition.X = 0;                    
+                    KeyInput.BackSpace(ref data);
                     return;
                 }
 
-                if (bufferPosition.X < buffer[bufferPosition.Y].Length)
+                if (data.bufferPosition.X < data.buffer[data.bufferPosition.Y].Length)
                 {
-                    buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Remove(bufferPosition.X, 1);
-                    Screen.WriteSentence(buffer[bufferPosition.Y] + " ", ref bufferPosition, ref margin);
+                    data.buffer[data.bufferPosition.Y] = data.buffer[data.bufferPosition.Y].Remove(data.bufferPosition.X, 1);
+                    Screen.WriteSentence(data.buffer[data.bufferPosition.Y] + " ", ref data);
                 }
             }
         }
 
-        public static void Escape(ref List<string> buffer, ref string currFilename,ref bool running, ref int margin, ref int padding)
+        public static void Escape(ref EditData data, ref bool running)
         {            
-            if (ConfirmBox.Show(ref buffer, currFilename))
+            if (ConfirmBox.Show(ref data))
             {
                 running = false;
             }
             else
             {
-                Screen.Refresh(ref buffer, ref padding, ref margin);
+                Screen.Refresh(ref data);
                 running = true;
             }
         }
 
-        public static void Default(ref List<string> buffer, ref Point bufferPosition, ref int margin, ref ConsoleKeyInfo keyInfo)
+        public static void Default(ref EditData data, ref ConsoleKeyInfo keyInfo)
         {
-            if (buffer.Count == 0)
-                buffer.Add("");
+            if (data.buffer.Count == 0)
+                data.buffer.Add("");
 
-            if (buffer[bufferPosition.Y] == null)
+            if (data.buffer[data.bufferPosition.Y] == null)
                 return;
 
-            if (bufferPosition.X <= buffer[bufferPosition.Y].Length)
+            if (data.bufferPosition.X <= data.buffer[data.bufferPosition.Y].Length)
             {
-                buffer[bufferPosition.Y] = buffer[bufferPosition.Y].Insert(bufferPosition.X, keyInfo.KeyChar.ToString());
-                bufferPosition.X++;
-                Screen.WriteSentence(buffer[bufferPosition.Y], ref bufferPosition, ref margin);
+                data.buffer[data.bufferPosition.Y] = data.buffer[data.bufferPosition.Y].Insert(data.bufferPosition.X, keyInfo.KeyChar.ToString());
+                data.bufferPosition.X++;
+                Screen.WriteSentence(data.buffer[data.bufferPosition.Y], ref data);
             }
         }
 
-        public static void PageDown(ref List<string> buffer, ref Point bufferPosition, ref int margin)
+        public static void PageDown(ref EditData data)
         {
             int pageHeight = Console.WindowHeight;
 
-            if (bufferPosition.Y < buffer.Count)
+            if (data.bufferPosition.Y < data.buffer.Count)
             {
-                if (bufferPosition.Y + pageHeight < buffer.Count)
+                if (data.bufferPosition.Y + pageHeight < data.buffer.Count)
                 {
-                    if (bufferPosition.X > buffer[bufferPosition.Y + pageHeight].Length)
+                    if (data.bufferPosition.X > data.buffer[data.bufferPosition.Y + pageHeight].Length)
                     {
-                        bufferPosition.X = buffer[bufferPosition.Y + pageHeight].Length;
-                        Console.CursorLeft = bufferPosition.X + margin;
+                        data.bufferPosition.X = data.buffer[data.bufferPosition.Y + pageHeight].Length;
+                        Console.CursorLeft = data.bufferPosition.X + data.margin;
                     }
-                    bufferPosition.Y = bufferPosition.Y + pageHeight;
+                    data.bufferPosition.Y = data.bufferPosition.Y + pageHeight;
                 }
                 else
                 {
-                    bufferPosition.Y = buffer.Count - 1;
+                    data.bufferPosition.Y = data.buffer.Count - 1;
 
-                    if (bufferPosition.X > buffer[bufferPosition.Y].Length)
+                    if (data.bufferPosition.X > data.buffer[data.bufferPosition.Y].Length)
                     {
-                        bufferPosition.X = buffer[bufferPosition.Y].Length;
-                        Console.CursorLeft = bufferPosition.X + margin;
+                        data.bufferPosition.X = data.buffer[data.bufferPosition.Y].Length;
+                        Console.CursorLeft = data.bufferPosition.X + data.margin;
                     }                   
                 }
 
-                Console.CursorTop = bufferPosition.Y;
+                Console.CursorTop = data.bufferPosition.Y;
             }
         }
 
-        public static void PageUp(ref List<string> buffer, ref Point bufferPosition, ref int margin)
+        public static void PageUp(ref EditData data)
         {
             int pageHeight = Console.WindowHeight;          
 
-            if (bufferPosition.Y > 0)
+            if (data.bufferPosition.Y > 0)
             {
-                if (bufferPosition.Y - pageHeight < 0)
+                if (data.bufferPosition.Y - pageHeight < 0)
                 {
-                    if (bufferPosition.X > buffer[0].Length)
+                    if (data.bufferPosition.X > data.buffer[0].Length)
                     {
-                        bufferPosition.X = buffer[0].Length;
-                        Console.CursorLeft = bufferPosition.X + margin;
+                        data.bufferPosition.X = data.buffer[0].Length;
+                        Console.CursorLeft = data.bufferPosition.X + data.margin;
                     }
-                    bufferPosition.Y = 0;
+                    data.bufferPosition.Y = 0;
                 }
                 else
                 {
-                    if (bufferPosition.X > buffer[bufferPosition.Y - pageHeight].Length)
+                    if (data.bufferPosition.X > data.buffer[data.bufferPosition.Y - pageHeight].Length)
                     {
-                        bufferPosition.X = buffer[bufferPosition.Y - pageHeight].Length;
-                        Console.CursorLeft = bufferPosition.X + margin;
+                        data.bufferPosition.X = data.buffer[data.bufferPosition.Y - pageHeight].Length;
+                        Console.CursorLeft = data.bufferPosition.X + data.margin;
                     }
-                    bufferPosition.Y = bufferPosition.Y - pageHeight;
+                    data.bufferPosition.Y = data.bufferPosition.Y - pageHeight;
                 }
-                Console.CursorTop = bufferPosition.Y;
+                Console.CursorTop = data.bufferPosition.Y;
             }
         }
         
-        public static void CtrlHome(ref Point bufferPosition, ref int margin)        
+        public static void CtrlHome(ref EditData data)        
         {
-            bufferPosition.Y = 0;
-            bufferPosition.X = 0;
-            Console.CursorLeft = bufferPosition.X + margin;
-            Console.CursorTop = bufferPosition.Y;
+            data.bufferPosition.Y = 0;
+            data.bufferPosition.X = 0;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
+            Console.CursorTop = data.bufferPosition.Y;
         }
 
-        public static void CtrlEnd(ref List<string> buffer, ref Point bufferPosition, ref int margin)
+        public static void CtrlEnd(ref EditData data)
         {
-            bufferPosition.Y = buffer.Count - 1;
-            bufferPosition.X = buffer[bufferPosition.Y].Length;
-            Console.CursorLeft = bufferPosition.X + margin;
-            Console.CursorTop = bufferPosition.Y;
+            data.bufferPosition.Y = data.buffer.Count - 1;
+            data.bufferPosition.X = data.buffer[data.bufferPosition.Y].Length;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
+            Console.CursorTop = data.bufferPosition.Y;
         }
 
 

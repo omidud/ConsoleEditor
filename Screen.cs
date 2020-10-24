@@ -6,44 +6,45 @@ namespace ConsoleEditor
     //another helper just for draw,clean, write in the screen
     //display purpose
     public static class Screen
-    {    //ref buffer, ref bufferPosition, ref margin, ref padding
-        public static void Init(ref List<string> buffer, ref Point bufferPoint, ref int margin, ref int padding)
+    {           
+        public static void Init(ref EditData data)
         {           
-            Screen.Refresh(ref buffer, ref margin, ref padding);            
-            bufferPoint.X = 0;
-            Console.CursorLeft = bufferPoint.X + margin;
-            //Console.CursorLeft = bufferPoint.X + padding;
-            bufferPoint.Y = 0;
-            Console.CursorTop = bufferPoint.Y;
+            Screen.Refresh(ref data);
+            data.bufferPosition.X = 0;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;            
+            data.bufferPosition.Y = 0;
+            Console.CursorTop = data.bufferPosition.Y;
         }
 
-        public static void WriteSentence(string sentence, ref Point bufferPoint, ref int margin)
+        public static void WriteSentence(string sentence, ref EditData data)
         {
-            Console.CursorTop = bufferPoint.Y;
+            Console.CursorTop = data.bufferPosition.Y;
             Console.CursorVisible = false;
-            Console.CursorLeft = 0 + margin;
+            Console.CursorLeft = 0 + data.margin;
             Console.Write(sentence);            
-            Console.CursorLeft = bufferPoint.X + margin;
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
             Console.CursorVisible = true;
         }
 
-        public static void Refresh(ref List<string> buffer, ref int margin, ref int padding )
+        public static void Refresh(ref EditData data)
         {
-            int width = Util.getMaxStringLenght(ref buffer);
-            Console.WindowWidth = width + margin + 10;
+            int width = Util.getMaxStringLenght(ref data);
+            Console.WindowWidth = width + data.margin + 10;
 
-            int totalLineNumber = buffer.Count;
-            padding = totalLineNumber.ToString().Length; // = 3
-            margin = padding + 2;                        // = 5
+            int totalLineNumber = data.buffer.Count;
+            data.padding = totalLineNumber.ToString().Length; // = 3
+            data.margin = data.padding + 2;                        // = 5
             
             Console.CursorVisible = false;
             Console.Clear();
             int lineNumber = 0;
-            foreach (string texto in buffer)
+            foreach (string texto in data.buffer)
             {                
                 lineNumber++;
-                Console.WriteLine(lineNumber.ToString().PadLeft(padding, ' ') + ": " + texto);
+                Console.WriteLine(lineNumber.ToString().PadLeft(data.padding, ' ') + ": " + texto);
             }
+            Console.CursorLeft = data.bufferPosition.X + data.margin;
+            Console.CursorTop = data.bufferPosition.Y;
             Console.CursorVisible = true;
             
         }

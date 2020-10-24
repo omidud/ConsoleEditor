@@ -9,12 +9,12 @@ namespace ConsoleEditor
     //the confirmation box when esc, to save, or not save and cancel
     public static class ConfirmBox
     {
-        public static bool Show(ref List<string> buffer, string currFilename)
+        public static bool Show(ref EditData data)
         {
             bool retorna = false;
             //Console.CursorVisible = true;
             Console.CursorLeft = 0;
-            Console.CursorTop = buffer.Count + 2;
+            Console.CursorTop = data.buffer.Count + 2;
 
             //int size = getMaxStringLenght() + margin;
             //if (size < 80) size = 80;
@@ -22,14 +22,14 @@ namespace ConsoleEditor
 
             string disPlayname = "";
 
-            if (File.Exists(currFilename))
+            if (File.Exists(data.currFilename))
             {
-                FileInfo fInfo = new FileInfo(currFilename);
+                FileInfo fInfo = new FileInfo(data.currFilename);
                 disPlayname = fInfo.Name;
             }
             else
             {
-                disPlayname = currFilename;
+                disPlayname = data.currFilename;
             }
             // disPlayname = disPlayname.PadLeft(47);
 
@@ -60,15 +60,20 @@ namespace ConsoleEditor
 
                 if (keyInfo.Key == ConsoleKey.Y)
                 {
+                    
                     Console.WriteLine();
-                    Console.Write("                Save as [" + currFilename + "]: ");
-                    string filename = Console.ReadLine();
+                    Console.Write("                Save as [" + data.currFilename + "]: ");
+                    
+                    Console.TreatControlCAsInput = false;
+                    Console.CursorVisible = true;
+                    string newFilename = Console.ReadLine();                                      
 
-                    if (filename == "")
-                        FileIO.SaveFile(currFilename, ref buffer);
-                    else
-                        FileIO.SaveFile(filename, ref buffer);
+                    if(newFilename != "")
+                    {
+                        data.currFilename = newFilename;
+                    }
 
+                    FileIO.SaveFile(ref data);
                     continueAsking = false;
                     retorna = true;
                 }

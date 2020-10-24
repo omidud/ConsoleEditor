@@ -7,25 +7,25 @@ namespace ConsoleEditor
     // work the save and open file
     public static class FileIO
     {
-        public static void OpenFile(string filename, ref List<string> buffer)
+        public static void OpenFile(ref EditData data)
         {
-            string[] arrString = File.ReadAllLines(filename);
+            string[] arrString = File.ReadAllLines(data.currFilename);
 
             foreach (string str in arrString)
             {
-                buffer.Add(str.Replace(Environment.NewLine, "")); //important remove the newlines
+                data.buffer.Add(str.Replace(Environment.NewLine, "")); //important remove the newlines
             }
         }
 
-        public static void SaveFile(string filename, ref List<string> buffer)
+        public static void SaveFile(ref EditData data)
         {
             string contents = "";
             int count = 0;
 
-            foreach (string strLine in buffer)
+            foreach (string strLine in data.buffer)
             {
                 count++;
-                if (count < buffer.Count)
+                if (count < data.buffer.Count)
                     contents += strLine + Environment.NewLine; ////important add the newlines
                 else
                 {
@@ -33,11 +33,14 @@ namespace ConsoleEditor
                         contents += strLine + Environment.NewLine;
                     else
                         contents += strLine; //no in the last line
-                }
+                }                
             }
 
-            File.WriteAllText(filename, contents);
+            File.WriteAllText(data.currFilename, contents);
 
+            data.buffer.Clear();
+
+            
         }
 
     }//end class

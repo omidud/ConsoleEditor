@@ -4,47 +4,46 @@ using System.IO;
 
 namespace ConsoleEditor
 {
-    //Editor 2.5
+    //Editor 2.6
     public class Editor
-    {
-        private Point bufferPosition = new Point();
-        private List<string> buffer = new List<string>();        
-        private string currFilename;
-        private int padding = 0;
-        private int margin = 0;
+    {        
+        private EditData data;
 
         public Editor() //no filename provided,  currFilename = "Untitled";
         {
+            data = new EditData();
+
             //new file Untitled
-            currFilename = "Untitled";           
-            buffer.Add("");            
-            Screen.Init(ref buffer, ref bufferPosition, ref margin, ref padding);
+            data.currFilename = "Untitled";
+            data.buffer.Add("");            
+            Screen.Init(ref data);
         }
 
         public Editor(string filename)
         {
-            currFilename = filename;
+            data = new EditData();
+            data.currFilename = filename;
 
-            if(File.Exists(currFilename)) //if exist , open for edit
+            if(File.Exists(data.currFilename)) //if exist , open for edit
             {
-                FileIO.OpenFile(currFilename, ref buffer);
-                if (buffer.Count == 0)
-                    buffer.Add("");
+                FileIO.OpenFile(ref data);
+                if (data.buffer.Count == 0)
+                    data.buffer.Add("");
             }
             else
             {
                 //new file but with filename
-                buffer.Add("");
+                data.buffer.Add("");
             }            
-            Screen.Init(ref buffer, ref bufferPosition, ref margin, ref padding);
+            Screen.Init(ref data);
         }
                
         public void Run()
         {
-            Console.Title = "Y: " + bufferPosition.Y.ToString() + "  X: " + bufferPosition.X.ToString();
+            Console.Title = "Y: " + data.bufferPosition.Y.ToString() + "  X: " + data.bufferPosition.X.ToString();
             Console.TreatControlCAsInput = true;
             bool running = true;
-            Console.CursorLeft = margin;
+            Console.CursorLeft = data.margin;
 
             while (running)
             {
@@ -57,10 +56,10 @@ namespace ConsoleEditor
                     switch(keyInfo.Key)
                     {
                         case ConsoleKey.Home:
-                            KeyInput.CtrlHome(ref bufferPosition, ref margin);
+                            KeyInput.CtrlHome(ref data);
                             break;
                         case ConsoleKey.End:
-                            KeyInput.CtrlEnd(ref buffer, ref bufferPosition, ref margin);
+                            KeyInput.CtrlEnd(ref data);
                             break;
                         case ConsoleKey.X:
                             //cut
@@ -82,43 +81,43 @@ namespace ConsoleEditor
                     switch (keyInfo.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            KeyInput.UpArrow(ref buffer, ref bufferPosition, ref margin);
+                            KeyInput.UpArrow(ref data);
                             break;
                         case ConsoleKey.DownArrow:
-                            KeyInput.DownArrow(ref buffer, ref bufferPosition, ref margin);                            
+                            KeyInput.DownArrow(ref data);                            
                             break;
                         case ConsoleKey.RightArrow:  
-                            KeyInput.RightArrow(ref buffer, ref bufferPosition, ref margin);                            
+                            KeyInput.RightArrow(ref data);                            
                             break;
                         case ConsoleKey.LeftArrow:
-                            KeyInput.LeftArrow(ref bufferPosition, ref margin);
+                            KeyInput.LeftArrow(ref data);
                             break;
                         case ConsoleKey.Home:
-                            KeyInput.Home(ref bufferPosition, ref margin);                            
+                            KeyInput.Home(ref data);                            
                             break;
                         case ConsoleKey.End:
-                            KeyInput.End(ref buffer, ref bufferPosition, ref margin);                            
+                            KeyInput.End(ref data);                            
                             break;                       
                         case ConsoleKey.Delete:
-                            KeyInput.Delete(ref buffer, ref bufferPosition, ref margin, ref padding);
+                            KeyInput.Delete(ref data);
                             break;
                         case ConsoleKey.Backspace:                                                       
-                            KeyInput.BackSpace(ref buffer, ref bufferPosition, ref margin, ref padding);
+                            KeyInput.BackSpace(ref data);
                             break;
                         case ConsoleKey.Enter:                            
-                            KeyInput.Enter(ref buffer, ref bufferPosition, ref margin, ref padding);
+                            KeyInput.Enter(ref data);
                             break;
                         case ConsoleKey.PageDown:
-                            KeyInput.PageDown(ref buffer, ref bufferPosition, ref margin);
+                            KeyInput.PageDown(ref data);
                             break;
                         case ConsoleKey.PageUp:
-                            KeyInput.PageUp(ref buffer, ref bufferPosition, ref margin);
+                            KeyInput.PageUp(ref data);
                             break;
                         case ConsoleKey.Escape:
-                            KeyInput.Escape(ref buffer, ref currFilename, ref running, ref margin, ref padding);                           
+                            KeyInput.Escape(ref data, ref running);                           
                             break;
                         default:
-                            KeyInput.Default(ref buffer, ref bufferPosition, ref margin, ref keyInfo);                           
+                            KeyInput.Default(ref data, ref keyInfo);                           
                             break;
                     }//end switch         
                 }
